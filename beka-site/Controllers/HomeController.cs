@@ -16,7 +16,62 @@ namespace BekaWebsite.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public static void Mailer(string fromAddress, string subject, string body)
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+
+            return View();
+        }
+
+        public IActionResult Create()
+        {
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(string FromAddress, string Body)
+        {
+            string unPath = Directory.GetCurrentDirectory() + "\\un.txt";
+            string fromAddress = System.IO.File.ReadAllText(unPath);
+            string subject = "New message from " + fromAddress;
+            string body = Body;
+            Mailer(fromAddress, subject, body);
+
+            return RedirectToAction("Index");
+
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        //[HttpPost]
+        //public  IActionResult PostMessage(string FromAddress, string Body)
+        //{
+        //    string unPath = Directory.GetCurrentDirectory() + "\\un.txt";
+        //    string fromAddress = System.IO.File.ReadAllText(unPath);
+        //    string subject = "New message from " + fromAddress;
+        //    string body = Body;
+        //    Mailer(fromAddress, subject, body);
+
+        //    return RedirectToAction("Index");
+        //}
+
+
+
+        public static void Mailer(string fromAddress, string subject, string message)
         {
 
             //Configure the smtp server
@@ -39,55 +94,22 @@ namespace BekaWebsite.Controllers
             MailMessage mailMessage = new MailMessage();
             mailMessage.From = new MailAddress(fromAddress);
             mailMessage.To.Add("matthew.hays.dev@gmail.com");
-            mailMessage.Subject = "hi from beka's website";
-            mailMessage.Body = "hi";
+            mailMessage.Subject = subject;
+            mailMessage.Body = message;
+            //mailMessage.To.Add("matthew.hays.dev@gmail.com");
+            //mailMessage.Subject = "hi from beka's website";
+            //mailMessage.Body = "hi";
 
             //Send the message
             try
             {
                 client.Send(mailMessage);
             }
-            catch(Exception E)
+            catch (Exception E)
             {
                 throw;
             }
 
-        }
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            //move this to its own post route eventually
-            //temporary code for testing
-            string unPath = Directory.GetCurrentDirectory() + "\\un.txt";
-            string fromAddress = System.IO.File.ReadAllText(unPath);
-            const string subject = "subject";
-            const string body = "body";
-            Mailer(fromAddress, subject, body);
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        [HttpPost]
-        public  IActionResult PostMessage()
-        {
-
-
-            return RedirectToAction("Index");
         }
     }
 }
